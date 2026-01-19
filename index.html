@@ -783,6 +783,139 @@
       position:absolute; width:1px; height:1px; padding:0; margin:-1px; overflow:hidden; clip:rect(0,0,0,0); white-space:nowrap; border:0;
     }
 
+    /* Modal */
+    .modal-overlay{
+      position:fixed;
+      inset:0;
+      background:rgba(0,0,0,.75);
+      backdrop-filter:blur(8px);
+      -webkit-backdrop-filter:blur(8px);
+      z-index:9999;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      padding:20px;
+      opacity:0;
+      visibility:hidden;
+      transition: opacity .3s ease, visibility .3s ease;
+    }
+    .modal-overlay.open{
+      opacity:1;
+      visibility:visible;
+    }
+    .modal{
+      background: linear-gradient(180deg, rgba(15,30,45,.98), rgba(6,19,27,.98));
+      border:1px solid rgba(255,255,255,.14);
+      border-radius: var(--radius2);
+      box-shadow: 0 25px 80px rgba(0,0,0,.5);
+      max-width:480px;
+      width:100%;
+      padding:32px;
+      position:relative;
+      transform: translateY(20px) scale(.96);
+      transition: transform .3s ease;
+    }
+    .modal-overlay.open .modal{
+      transform: translateY(0) scale(1);
+    }
+    .modal-close{
+      position:absolute;
+      top:16px;
+      right:16px;
+      width:36px;
+      height:36px;
+      border-radius:12px;
+      border:1px solid rgba(255,255,255,.12);
+      background:rgba(255,255,255,.04);
+      color:var(--text);
+      cursor:pointer;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      transition: background .2s ease, border-color .2s ease;
+    }
+    .modal-close:hover{
+      background:rgba(239,68,68,.15);
+      border-color:rgba(239,68,68,.3);
+    }
+    .modal h2{
+      margin:0 0 8px 0;
+      font-size:1.5rem;
+    }
+    .modal p{
+      margin:0 0 24px 0;
+      color:var(--muted);
+    }
+    .form-group{
+      margin-bottom:16px;
+    }
+    .form-group label{
+      display:block;
+      font-weight:600;
+      margin-bottom:8px;
+      color:var(--text);
+    }
+    .form-input{
+      width:100%;
+      padding:14px 16px;
+      font-size:1rem;
+      font-family:inherit;
+      background:rgba(255,255,255,.06);
+      border:1px solid rgba(255,255,255,.12);
+      border-radius:14px;
+      color:var(--text);
+      outline:none;
+      transition: border-color .2s ease, box-shadow .2s ease, background .2s ease;
+    }
+    .form-input::placeholder{
+      color:rgba(233,244,251,.5);
+    }
+    .form-input:focus{
+      border-color:var(--accent);
+      box-shadow: 0 0 0 3px rgba(6,182,212,.15);
+      background:rgba(255,255,255,.08);
+    }
+    .form-submit{
+      width:100%;
+      padding:14px 20px;
+      font-size:1rem;
+      font-family:inherit;
+      font-weight:700;
+      background: linear-gradient(135deg, var(--secondary), var(--primary));
+      border:1px solid rgba(6,182,212,.35);
+      border-radius:14px;
+      color:var(--text);
+      cursor:pointer;
+      transition: transform .2s ease, box-shadow .2s ease, background .2s ease;
+    }
+    .form-submit:hover{
+      transform: translateY(-2px);
+      box-shadow: 0 14px 40px rgba(6,182,212,.25);
+    }
+    .form-submit:disabled{
+      opacity:.6;
+      cursor:not-allowed;
+      transform:none;
+    }
+    .form-success{
+      text-align:center;
+      padding:20px 0;
+    }
+    .form-success svg{
+      width:64px;
+      height:64px;
+      margin-bottom:16px;
+      color:var(--accent);
+    }
+    .form-success h3{
+      margin:0 0 8px 0;
+      font-size:1.3rem;
+    }
+    .form-success p{
+      margin:0;
+      color:var(--muted);
+    }
+
     /* Responsive */
     @media (min-width: 820px){
       .nav-links{display:flex}
@@ -1585,6 +1718,41 @@
     </div>
   </footer>
 
+  <!-- Email Signup Modal -->
+  <div class="modal-overlay" id="signupModal" aria-hidden="true">
+    <div class="modal" role="dialog" aria-labelledby="modalTitle">
+      <button class="modal-close" id="modalClose" aria-label="Close modal">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
+          <path d="M18 6L6 18M6 6l12 12" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+        </svg>
+      </button>
+
+      <div id="formContainer">
+        <h2 id="modalTitle">Get Early Access</h2>
+        <p>Join the waitlist to be among the first to experience AI-powered electronics design.</p>
+
+        <form id="signupForm">
+          <div class="form-group">
+            <label for="emailInput">Email address</label>
+            <input type="email" id="emailInput" class="form-input" placeholder="you@company.com" required>
+          </div>
+          <button type="submit" class="form-submit" id="submitBtn">
+            Join the Waitlist
+          </button>
+        </form>
+      </div>
+
+      <div id="successContainer" class="form-success" style="display:none;">
+        <svg viewBox="0 0 24 24" fill="none">
+          <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="2"/>
+          <path d="M8 12l2.5 2.5L16 9" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+        <h3>You're on the list!</h3>
+        <p>We'll be in touch soon with early access details.</p>
+      </div>
+    </div>
+  </div>
+
   <script>
     (function () {
       const nav = document.querySelector('.nav');
@@ -1614,6 +1782,93 @@
           });
         });
       }
+
+      // Modal functionality
+      const modal = document.getElementById('signupModal');
+      const modalClose = document.getElementById('modalClose');
+      const form = document.getElementById('signupForm');
+      const emailInput = document.getElementById('emailInput');
+      const submitBtn = document.getElementById('submitBtn');
+      const formContainer = document.getElementById('formContainer');
+      const successContainer = document.getElementById('successContainer');
+
+      // Open modal on "Register for Early Access" clicks
+      document.querySelectorAll('a[href="#contact"]').forEach(link => {
+        if (link.textContent.toLowerCase().includes('early access') ||
+            link.getAttribute('aria-label')?.toLowerCase().includes('early access')) {
+          link.addEventListener('click', (e) => {
+            e.preventDefault();
+            openModal();
+          });
+        }
+      });
+
+      function openModal() {
+        modal.classList.add('open');
+        modal.setAttribute('aria-hidden', 'false');
+        document.body.style.overflow = 'hidden';
+
+        // Check if already subscribed
+        if (localStorage.getItem('circuitly_subscribed')) {
+          formContainer.style.display = 'none';
+          successContainer.style.display = 'block';
+        } else {
+          formContainer.style.display = 'block';
+          successContainer.style.display = 'none';
+          setTimeout(() => emailInput.focus(), 100);
+        }
+      }
+
+      function closeModal() {
+        modal.classList.remove('open');
+        modal.setAttribute('aria-hidden', 'true');
+        document.body.style.overflow = '';
+      }
+
+      modalClose.addEventListener('click', closeModal);
+
+      modal.addEventListener('click', (e) => {
+        if (e.target === modal) closeModal();
+      });
+
+      document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape' && modal.classList.contains('open')) {
+          closeModal();
+        }
+      });
+
+      // Form submission
+      form.addEventListener('submit', async (e) => {
+        e.preventDefault();
+
+        const email = emailInput.value.trim();
+        if (!email) return;
+
+        submitBtn.disabled = true;
+        submitBtn.textContent = 'Submitting...';
+
+        try {
+          const response = await fetch('/api/subscribe', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ email })
+          });
+
+          const data = await response.json();
+
+          if (data.success) {
+            localStorage.setItem('circuitly_subscribed', 'true');
+            formContainer.style.display = 'none';
+            successContainer.style.display = 'block';
+          } else {
+            throw new Error(data.error || 'Subscription failed');
+          }
+        } catch (error) {
+          console.error('Submission error:', error);
+          submitBtn.disabled = false;
+          submitBtn.textContent = 'Try Again';
+        }
+      });
     })();
   </script>
 </body>
